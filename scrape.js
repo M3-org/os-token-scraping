@@ -3,8 +3,8 @@ const fetch = require("node-fetch");
 const fs = require("fs");
 const path = require("path");
 
-const contractEndpoint = `https://api.opensea.io/api/v1/assets?asset_contract_address=${ADDRESS}`;
 const ADDRESS = "0xa342f5D851E866E18ff98F351f2c6637f4478dB5"; // Sandbox Assets contract address
+const contractEndpoint = `https://api.opensea.io/api/v1/assets?asset_contract_address=${ADDRESS}`;
 
 async function getContractInfo() {
   const metadata = [];
@@ -24,15 +24,8 @@ async function getContractInfo() {
     console.log(nextPage);
     const assets = data.assets;
     for (const asset of assets) {
-      const info = {
-        name: asset.name,
-        permalink: asset.permalink,
-        metadata: asset.token_metadata,
-        gltfUrl: asset.animation_original_url,
-        tokenId: asset.token_id,
-      };
-      metadata.push(info);
-      console.log(info);
+      metadata.push(asset);
+      console.log(asset);
     }
     nextPage = `${contractEndpoint}&cursor=${data.next}`;
     ended = data.next === null;
