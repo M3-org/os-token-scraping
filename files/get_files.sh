@@ -14,7 +14,12 @@ fi
 # Read each line of the CSV file
 while IFS=, read -r col1 col2 col3
 do
+  # Create a folder named after the value in column 1
+  mkdir -p "$col1"
+
   # Download the URLs in columns 2 and 3
+  #ipfs get "$col2" -o "$col1"
+  #ipfs get "$col3" -o "$col1"
   wget -w 10 --random-wait -nc --user-agent="$USER_AGENT" --continue "$col2" -P "$col1"
   wget -w 10 --random-wait -nc --user-agent="$USER_AGENT" --continue "$col3" -P "$col1"
 done < sandboxAssets.csv
