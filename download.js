@@ -28,8 +28,20 @@ const download = async (asset) => {
   try {
     const response = await fetch(gateway + asset);
     console.log(`downloading ${filename}`);
-    const buffer = await response.buffer();
-    console.log(`${buffer.length} bytes downloaded`);
+    // const buffer = await response.buffer();
+    // console.log(`${buffer.length} bytes downloaded`);
+    // wait 5 seconds for buffer then skip
+    const buffer = await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(response.buffer());
+      }, 5000);
+    });
+
+    if (!buffer) {
+      // write asset variable to a file named 'skipped.json'
+      fs.writeFileSync(path.join(__dirname, "skipped.json"), asset);
+      return console.log(`Skipping ${asset}`);
+    }
     // save to assets folder
     fs.writeFileSync(path.join(__dirname, "assets", filename), buffer);
     console.log(`Downloaded ${asset}`);
