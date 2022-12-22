@@ -6,54 +6,32 @@ const path = require("path");
 const data = fs.readFileSync(path.join(__dirname, "sandboxAssets.json"));
 const assets = JSON.parse(data);
 
-// remove 'ipfs://' from the beginning of each asset
-const ipfsAssets = assets.map((asset) => asset.replace("ipfs://", ""));
+// for each object in assets
+// download i.gltf and i.image
+// save them both to ./assets/i.name (string connected with _)
 
-// if any asset doesn't contain .gltf, remove it
-const gltfAssets = ipfsAssets.filter((asset) => asset.includes(".gltf"));
+async function download() {
+  console.log(assets.length);
+  for (const asset of assets) {
+    if (!asset.gltf || !asset.image) continue;
+    const gltf = await fetch(asset.gltf);
+    const image = await fetch(asset.image);
+    const gltfBuffer = await gltf.buffer();
+    const imageBuffer = await image.buffer();
+    const name = asset.name.replace(/\s/g, "_");
 
-// download through cloudflare gateway
-const gateway = "https://ipfs.io/ipfs/";
+    fs.mkdirSync(path.join(__dirname, "assets", `${asset.id}`));
+    fs.writeFileSync(
+      path.join(__dirname, "assets", `${asset.id}`, `${name}.gltf`),
+      gltfBuffer
+    );
+    fs.writeFileSync(
+      path.join(__dirname, "assets", `${asset.id}`, `${name}.png`),
+      imageBuffer
+    );
 
-// download each asset with a 5 second delay
-const download = async (asset) => {
-  // filename should be everything after the last slash
-  const filename = asset.split("/").pop();
-  console.log(`Downloading ${filename}`);
-  // if file already exists in /assets, skip
-  if (fs.existsSync(path.join(__dirname, "assets", filename))) {
-    console.log(`Skipping ${asset}`);
-    return;
+    console.log(`Downloaded ${name}`);
   }
-  try {
-    const response = await fetch(gateway + asset);
-    console.log(`downloading ${filename}`);
-    // const buffer = await response.buffer();
-    // console.log(`${buffer.length} bytes downloaded`);
-    // wait 5 seconds for buffer then skip
-    const buffer = await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(response.buffer());
-      }, 5000);
-    });
+}
 
-    if (!buffer) {
-      // write asset variable to a file named 'skipped.json'
-      fs.writeFileSync(path.join(__dirname, "skipped.json"), asset);
-      return console.log(`Skipping ${asset}`);
-    }
-    // save to assets folder
-    fs.writeFileSync(path.join(__dirname, "assets", filename), buffer);
-    console.log(`Downloaded ${asset}`);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-const downloadAssets = async () => {
-  for (const asset of gltfAssets) {
-    await download(asset);
-  }
-};
-
-downloadAssets();
+download();

@@ -12,20 +12,35 @@ async function getContractInfo() {
   let ended = false;
 
   while (!ended) {
-    const res = await fetch(nextPage, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-API-KEY": process.env.OPENSEA_API_KEY,
-      },
-    });
+    let res;
+    try {
+      res = await fetch(nextPage, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-KEY": process.env.OPENSEA_API_KEY,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
     const data = await res.json();
     console.log(nextPage);
     const assets = data.assets;
     for (const asset of assets) {
-      metadata.push(asset.animation_original_url);
-      console.log(asset);
+      const filtered = {
+        name: asset.name,
+        description: asset.description,
+        image: asset.image_url,
+        gltf: asset.animation_url,
+        link: asset.permalink,
+        tokenId: asset.token_id,
+        metadata: asset.token_metadata,
+        id: asset.id,
+      };
+      metadata.push(filtered);
+      console.log(filtered);
     }
     nextPage = `${contractEndpoint}&cursor=${data.next}`;
     ended = data.next === null;
