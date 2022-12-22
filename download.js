@@ -10,10 +10,6 @@ const assets = JSON.parse(data);
 // download i.gltf and i.image
 // save them both to ./assets/i.id (opensea unique id)
 
-// TODO:
-// - if the asset already exists, skip it
-// - if remove slashes from name
-
 async function download() {
   console.log(assets.length);
   for (const asset of assets) {
@@ -37,8 +33,10 @@ async function download() {
           path.join(__dirname, "assets", `${asset.id}`, `${name}.png`),
           imageBuffer
         );
+        console.log(`Downloaded ${name}`);
+      } else {
+        console.log(`${name} already exists`);
       }
-      console.log(`Downloaded ${name}`);
     } catch (e) {
       console.log(e);
       continue;
