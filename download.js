@@ -8,7 +8,7 @@ const assets = JSON.parse(data);
 
 // for each object in assets
 // download i.gltf and i.image
-// save them both to ./assets/i.name (string connected with _)
+// save them both to ./assets/i.id (opensea unique id)
 
 async function download() {
   console.log(assets.length);
