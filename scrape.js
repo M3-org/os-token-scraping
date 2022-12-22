@@ -24,7 +24,7 @@ async function getContractInfo() {
     console.log(nextPage);
     const assets = data.assets;
     for (const asset of assets) {
-      metadata.push(asset);
+      metadata.push(asset.animation_original_url);
       console.log(asset);
     }
     nextPage = `${contractEndpoint}&cursor=${data.next}`;
